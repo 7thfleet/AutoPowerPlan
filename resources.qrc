@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/Resources">
+        <file>Images/PPS.ico</file>
+        <file>Images/PPS.png</file>
+    </qresource>
+</RCC>
