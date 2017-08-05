@@ -1,6 +1,6 @@
+This program was built with Qt under the GNU Lesser General Public License below. 
+By continuing installation you agree to the license below, and the previous license.
 
-
-Qt was used in AutoPowerPlan under the following license:
 				   GNU LESSER GENERAL PUBLIC LICENSE
                        Version 3, 29 June 2007
 
