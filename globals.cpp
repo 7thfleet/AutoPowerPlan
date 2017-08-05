@@ -23,6 +23,9 @@ extern "C"{
 #pragma comment(lib, "powrprof.lib")
 #pragma comment(lib, "Ole32.lib")
 
+//Misc
+const DWORD autoStartDetectTime = 30000; //if uptime > this, show the application window when starting
+const QString applicationName = "Auto Power Plan";   //Used for application settings
 
 //Clamps
 const int minUpdateFreq = 5;
@@ -33,14 +36,16 @@ const QString settingsPwrPlnBatFrndName_Name = "Plans/Battery";
 const QString settingsPwrPlnACFrndName_Name = "Plans/AC";
 const QString settingsUpdateFreq_Name = "UpdateFrequency";
 const QString settingsHasRun_Name = "HasRun";
+const QString settingsAutoStart_Name = "AutoStart";
 
 //Settings default values
 //!!!!!NOTE!!!!!
     //friendlyName is the value saved to file for the power plans
 const QString settingsDefPwrPlnBatFrndName_Value = "Balanced";
 const QString settingsDefPwrPlnACFrndName_Value = "High Performance";
-const int settingsDefUpdateFreq_Value = 20;
+const int settingsDefUpdateFreq_Value = 15;
 const bool settingsDefHasRun_Value = true;
+const bool settingsDefAutoStart_Value = true;
 
 
 //Misc Functions
@@ -50,6 +55,7 @@ void setGUIDToActiveScheme(GUID* &g){
     return;
 }
 
+
     //Returns bool indicating if computer is plugged in/on ac power
 bool isOnACPower(void){
     _SYSTEM_POWER_STATUS* powerStatus = new _SYSTEM_POWER_STATUS;
@@ -58,6 +64,7 @@ bool isOnACPower(void){
     delete powerStatus;
     return onAC;
 }
+
 
     //Returns a powerscheme given the friendlyName of one
 PowerScheme* schemeFromFriendlyName(QString friendlyName){

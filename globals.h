@@ -13,6 +13,10 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 
 #include "Windows.h"
 
+//Misc
+extern const DWORD autoStartDetectTime;
+extern const QString applicationName;
+
 //Clamps
 extern const int minUpdateFreq;
 extern const int maxUpdateFreq;
@@ -22,13 +26,14 @@ extern const QString settingsPwrPlnBatFrndName_Name;
 extern const QString settingsPwrPlnACFrndName_Name;
 extern const QString settingsUpdateFreq_Name;
 extern const QString settingsHasRun_Name;
-
+extern const QString settingsAutoStart_Name;
 
 //Default value of the settings
 extern const QString settingsDefPwrPlnBatFrndName_Value;
 extern const QString settingsDefPwrPlnACFrndName_Value;
 extern const int settingsDefUpdateFreq_Value;
 extern const bool settingsDefHasRun_Value;
+extern const bool settingsDefAutoStart_Value;
 
 
 //Default Power Schemes

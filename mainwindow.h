@@ -30,6 +30,7 @@ public:
 private slots:
     void onACComboBoxSelected(const QString& text);
     void onBatteryComboBoxSelected(const QString& text);
+    void onAutoStartComboBoxSelected(const QString& text);
     void onSpinBoxValueChange(int i);
     void exitClicked(QAction *action);
     void onActivated(QSystemTrayIcon::ActivationReason reason);
@@ -39,6 +40,8 @@ private slots:
 private:
     void writeToSettings(QString settingName, QString settingValue);
     void writeToSettings(QString settingName, int settingValue);
+    void writeToSettings(QString settingName, bool settingValue);
+    void updateAutoStartSetting();
 
     Ui::MainWindow *ui;
 };

@@ -36,7 +36,6 @@ extern "C"{
 
 
 MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
     //QSettings/Configuration
@@ -48,8 +47,13 @@ MainWindow::MainWindow(QWidget *parent) :
         userSettings.setValue(settingsPwrPlnACFrndName_Name, settingsDefPwrPlnACFrndName_Value);
         userSettings.setValue(settingsHasRun_Name, settingsDefHasRun_Value);
         userSettings.setValue(settingsUpdateFreq_Name, settingsDefUpdateFreq_Value);
+        userSettings.setValue(settingsAutoStart_Name, settingsDefAutoStart_Value);
+
     }
+
     userSettings.sync();
+
+    updateAutoStartSetting();   //Update auto start settings based on values in QSettings
 
     //Create UI
     ui->setupUi(this);
@@ -62,7 +66,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     //Create system tray
     QSystemTrayIcon* tray = new QSystemTrayIcon(parent);
-    tray->setToolTip("Auto Power Plan");
+    tray->setToolTip(applicationName);
     QIcon trayIcon;
     trayIcon.addPixmap(QPixmap(":/Resources/Images/PPS.png"), QIcon::Normal, QIcon::Off);
     tray->setIcon(trayIcon);
@@ -116,24 +120,40 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
 
+
         //Create ordered lists of the options
     QStringList onACCommands = {ACCommandsList[0], ACCommandsList[1],ACCommandsList[2]};
     QStringList onBatteryCommands = {batteryCommandsList[0], batteryCommandsList[1],batteryCommandsList[2]};
 
 
+    //Create list of options for auto start
+    QStringList autoStartCommands = {"No", "Yes"};
+    if(userSettings.value(settingsAutoStart_Name).toBool()){
+        //Application is set to auto start with windows
+        autoStartCommands = QStringList{"Yes", "No"};
+
+    }
+
         //Set the combo box items to the lists
     ui->dynamicSettingsBPPComboBox->addItems(onBatteryCommands);
     ui->dynamicSettingsPIPPComboBox->addItems(onACCommands);
+    ui->dynamicSettingsASComboBox->addItems(autoStartCommands);
 
     //Set clamps for update value
     ui->dynamicSettingsUFSpinBox->setMaximum(maxUpdateFreq);
     ui->dynamicSettingsUFSpinBox->setMinimum(minUpdateFreq);
+
+
+
+
 
     //Connections
         //Plugged in Power Plan ComboBox option selected
     connect(ui->dynamicSettingsPIPPComboBox, static_cast<void(QComboBox::*)(const QString &)>(&QComboBox::activated), this, &MainWindow::onACComboBoxSelected);
         //On Battery Power Plan ComboBox option selected
     connect(ui->dynamicSettingsBPPComboBox, static_cast<void(QComboBox::*)(const QString &)>(&QComboBox::activated), this, &MainWindow::onBatteryComboBoxSelected);
+        //Automatically start ComboBox option selected
+    connect(ui->dynamicSettingsASComboBox, static_cast<void(QComboBox::*)(const QString &)>(&QComboBox::activated), this, &MainWindow::onAutoStartComboBoxSelected);
         //Update Frequency value changed
     connect(ui->dynamicSettingsUFSpinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &MainWindow::onSpinBoxValueChange);
         //"Exit" option in system tray icon clicked
@@ -162,6 +182,19 @@ void MainWindow::onBatteryComboBoxSelected(const QString &text){
     writeToSettings(settingsPwrPlnBatFrndName_Name, text);
     return;
 }
+
+void MainWindow::onAutoStartComboBoxSelected(const QString &text){
+    //write to QSettings
+    bool autoStartValue = true;
+    if(text == "No"){
+        autoStartValue = false;
+    }
+    qDebug() << "[dynamicSettingsASComboBox] setting AutoStart to " << (QString)autoStartValue;
+    writeToSettings(settingsAutoStart_Name, autoStartValue);
+    updateAutoStartSetting();
+    return;
+}
+
 void MainWindow::onSpinBoxValueChange(int i){
     //Write to QSettings
     if(i>0){ //Just to be safe
@@ -224,7 +257,7 @@ void MainWindow::onActivated(QSystemTrayIcon::ActivationReason reason){
 
 }
 
-//Intercept the clicking of the 'X' button
+//Intercept the clicking of the 'X'/close button
 void MainWindow::closeEvent(QCloseEvent *event){
 
         this->hide();
@@ -245,5 +278,31 @@ void MainWindow::writeToSettings(QString settingName, QString settingValue){
     QSettings settings;
     settings.setValue(settingName, settingValue);
     settings.sync();
+    return;
+}
+
+//Write supplied setting & sync
+void MainWindow::writeToSettings(QString settingName, bool settingValue){
+    QSettings settings;
+    settings.setValue(settingName, settingValue);
+    settings.sync();
+    return;
+}
+
+//Change auto start value
+void MainWindow::updateAutoStartSetting(void){
+    QSettings usersettings;
+    bool autoStart = usersettings.value(settingsAutoStart_Name).toBool();
+
+    QSettings bootSettings("HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Run", QSettings::NativeFormat);
+    if(autoStart){
+        qDebug() << "Adding application to startup";
+        bootSettings.setValue(applicationName, QCoreApplication::applicationFilePath().replace('/', '\\'));
+    }else{
+        qDebug() << "Removing application from startup";
+        bootSettings.remove(applicationName);
+    }
+
+    bootSettings.sync();
     return;
 }
