@@ -24,7 +24,7 @@ extern "C"{
 #pragma comment(lib, "Ole32.lib")
 
 //Misc
-const DWORD autoStartDetectTime = 30000; //if uptime > this, show the application window when starting
+const DWORD autoStartDetectTime = 60000; //if uptime > this, show the application window when starting
 const QString applicationName = "Auto Power Plan";   //Used for application settings
 
 //Clamps
