@@ -307,7 +307,7 @@ bool MainWindow::willAutoStart(void){
     QSettings bootSettings(regStartupPath, QSettings::NativeFormat);
     if(! bootSettings.value(applicationName).toBool()){
         //No autostart key found
-        qDebug() << "Remove me, no key found";
+        qDebug() << "No autostart key found";
         return false;
     }
 
