@@ -20,6 +20,8 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 #include <QApplication>
 #include <QString>
 #include <QSettings>
+#include <QDebug>
+
 #include "rpc.h"
 #include "rpcdce.h"
 #include "Windows.h"
@@ -65,12 +67,15 @@ int main(int argc, char *argv[])
     //Set values used for QSettings
     QCoreApplication::setOrganizationName(applicationName);
     QCoreApplication::setApplicationName(applicationName);
+    MainWindow w;
 
-    bool showWindow = false;
+
+    bool showWindow = true;
 
     //Check if application was auto started by windows or by user
-    if(GetTickCount() > autoStartDetectTime){
-        showWindow = true; //Uptime longer than autoStartDetectTime, assumed to not have been auto started
+    if(argv[1] == autoStartArg){
+        //AutoStarted
+        showWindow = false;
     }
 
 
@@ -82,7 +87,6 @@ int main(int argc, char *argv[])
 
 
 
-    MainWindow w;
 
     //Show window if first run or if manually started
     if(showWindow){

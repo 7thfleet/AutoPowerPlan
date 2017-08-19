@@ -10,6 +10,8 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 
 #include <QString>
 #include <QDebug>
+#include <QApplication>
+#include <QCoreApplication>
 
 #include "rpc.h"
 #include "rpcdce.h"
@@ -24,8 +26,9 @@ extern "C"{
 #pragma comment(lib, "Ole32.lib")
 
 //Misc
-const DWORD autoStartDetectTime = 60000; //if uptime > this, show the application window when starting
 const QString applicationName = "Auto Power Plan";   //Used for application settings
+const QString regStartupPath = "HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Run";
+const QString autoStartArg = "-hide";
 
 //Clamps
 const int minUpdateFreq = 5;
@@ -36,16 +39,14 @@ const QString settingsPwrPlnBatFrndName_Name = "Plans/Battery";
 const QString settingsPwrPlnACFrndName_Name = "Plans/AC";
 const QString settingsUpdateFreq_Name = "UpdateFrequency";
 const QString settingsHasRun_Name = "HasRun";
-const QString settingsAutoStart_Name = "AutoStart";
 
 //Settings default values
-//!!!!!NOTE!!!!!
+//Please note:
     //friendlyName is the value saved to file for the power plans
 const QString settingsDefPwrPlnBatFrndName_Value = "Balanced";
 const QString settingsDefPwrPlnACFrndName_Value = "High Performance";
 const int settingsDefUpdateFreq_Value = 15;
 const bool settingsDefHasRun_Value = true;
-const bool settingsDefAutoStart_Value = true;
 
 
 //Misc Functions
