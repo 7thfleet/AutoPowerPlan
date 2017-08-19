@@ -41,7 +41,8 @@ private:
     void writeToSettings(QString settingName, QString settingValue);
     void writeToSettings(QString settingName, int settingValue);
     void writeToSettings(QString settingName, bool settingValue);
-    void updateAutoStartSetting();
+    void setAutoStart(bool autoStart);
+    bool willAutoStart(void);
 
     Ui::MainWindow *ui;
 };

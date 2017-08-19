@@ -47,13 +47,12 @@ MainWindow::MainWindow(QWidget *parent) :
         userSettings.setValue(settingsPwrPlnACFrndName_Name, settingsDefPwrPlnACFrndName_Value);
         userSettings.setValue(settingsHasRun_Name, settingsDefHasRun_Value);
         userSettings.setValue(settingsUpdateFreq_Name, settingsDefUpdateFreq_Value);
-        userSettings.setValue(settingsAutoStart_Name, settingsDefAutoStart_Value);
+        setAutoStart(true);
 
     }
 
     userSettings.sync();
 
-    updateAutoStartSetting();   //Update auto start settings based on values in QSettings
 
     //Create UI
     ui->setupUi(this);
@@ -128,7 +127,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     //Create list of options for auto start
     QStringList autoStartCommands = {"No", "Yes"};
-    if(userSettings.value(settingsAutoStart_Name).toBool()){
+    if(willAutoStart()){
         //Application is set to auto start with windows
         autoStartCommands = QStringList{"Yes", "No"};
 
@@ -189,9 +188,8 @@ void MainWindow::onAutoStartComboBoxSelected(const QString &text){
     if(text == "No"){
         autoStartValue = false;
     }
-    qDebug() << "[dynamicSettingsASComboBox] setting AutoStart to " << (QString)autoStartValue;
-    writeToSettings(settingsAutoStart_Name, autoStartValue);
-    updateAutoStartSetting();
+    qDebug() << "[dynamicSettingsASComboBox] setting AutoStart to " << autoStartValue;
+    setAutoStart(autoStartValue);
     return;
 }
 
@@ -290,14 +288,12 @@ void MainWindow::writeToSettings(QString settingName, bool settingValue){
 }
 
 //Change auto start value
-void MainWindow::updateAutoStartSetting(void){
-    QSettings usersettings;
-    bool autoStart = usersettings.value(settingsAutoStart_Name).toBool();
+void MainWindow::setAutoStart(bool autoStart){
 
-    QSettings bootSettings("HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Run", QSettings::NativeFormat);
+    QSettings bootSettings(regStartupPath, QSettings::NativeFormat);
     if(autoStart){
         qDebug() << "Adding application to startup";
-        bootSettings.setValue(applicationName, QCoreApplication::applicationFilePath().replace('/', '\\'));
+        bootSettings.setValue(applicationName, "\"" + QCoreApplication::applicationFilePath().replace('/', '\\') + "\"" + " " + autoStartArg);
     }else{
         qDebug() << "Removing application from startup";
         bootSettings.remove(applicationName);
@@ -305,4 +301,15 @@ void MainWindow::updateAutoStartSetting(void){
 
     bootSettings.sync();
     return;
+}
+
+bool MainWindow::willAutoStart(void){
+    QSettings bootSettings(regStartupPath, QSettings::NativeFormat);
+    if(! bootSettings.value(applicationName).toBool()){
+        //No autostart key found
+        qDebug() << "Remove me, no key found";
+        return false;
+    }
+
+    return true;
 }
